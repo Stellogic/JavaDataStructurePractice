@@ -56,3 +56,4 @@ public class LinkedListStack {
         return  res;
     }
 }
+//push时间复杂度始终是O(1）
