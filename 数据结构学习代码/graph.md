@@ -89,3 +89,83 @@ class GraphAdjMat {
     }
 }
 ```
+## 邻接表
+实际上我们使用Vertex类表示顶点，这样删除时只需要删除一个不需要删除其他（借助哈希表）
+
+```java
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+class GraphAdjList {
+    Map<Vertex, List<Vertex>> adjList;
+
+    public GraphAdjList(Vertex[][] edges) {
+        this.adjList = new HashMap<>();
+        for (Vertex[] edge : edges) {
+            addVertex(edge[0]);
+            addVertex(edge[1]);
+            addEdge(edge[0], edge[1]);
+        }
+    }
+
+    public int size() {
+        return adjList.size();
+    }
+
+    public void addEdge(Vertex vet1, Vertex vet2) {
+        if (!adjList.containsKey(vet1) || !adjList.containsKey(vet2)) {
+            throw new IllegalArgumentException();
+        }
+        adjList.get(vet1).add(vet2);
+        adjList.get(vet2).add(vet1);
+    }
+
+    public void removeEdge(Vertex vet1, Vertex vet2) {
+        if (!adjList.containsKey(vet1) || !adjList.containsKey(vet2) || vet1 == vet2) {
+            throw new IllegalArgumentException();
+        }
+        adjList.get(vet1).remove(vet2);
+        adjList.get(vet2).remove(vet1);
+    }
+
+    public void addVertex(Vertex vet) {
+        if (adjList.containsKey(vet)) {
+            return;
+        }
+        adjList.put(vet, new ArrayList<>());
+    }
+
+    public void removeVertex(Vertex vet) {
+        if (!adjList.contains(vet)) {
+            throw new IllegalArgumentException();
+        }
+        adjList.remove(vet);
+        for (List<Vertex> list : adjList.values()) {
+            list.remove((vet));
+        }
+    }
+
+    public void print() {
+        System.out.println("邻接表 = ");
+        for (Map.Entry<Vertex,List<Vertex>> pair : adjList.entrySet())
+        {
+            List<Integer> temp = new ArrayList<>();
+            for (Vertex vertex : pair.getValue())
+            {
+                temp.add(vertex.val);
+            }
+            System.out.println(pair.getKey().val + ": " + temp + ",");
+        }
+    }
+}
+```
+| |邻接矩阵|邻接表（链表）|邻接表（哈希表）|
+|:---|:---:|:---:|:---:|
+|**判断是否邻接**|O(1)|O(n)|O(1)|
+|**添加边**|O(1)|O(1)|O(1)|
+|**删除边**|O(1)|O(n)|O(1)|
+|**添加顶点**|O(n)|O(1)|O(1)|
+|**删除顶点**|O(n*n)|O(n+m)|O(n+m)|
+|**内存空间**|O(n*n)|O(n+m)|O(n+m)|
