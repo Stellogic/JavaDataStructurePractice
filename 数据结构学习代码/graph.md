@@ -45,7 +45,7 @@ class GraphAdjMat {
             row.add(0);
         }
     }
-    public removeVertex(int index){
+    public void removeVertex(int index){
         if (index >= size())
         {
             throw new IndexOutOfBoundsException();
@@ -91,7 +91,33 @@ class GraphAdjMat {
 ```
 ## 邻接表
 实际上我们使用Vertex类表示顶点，这样删除时只需要删除一个不需要删除其他（借助哈希表）
+```java
+class Vertex {
+    int val;
 
+    Vertex(int val) {
+        this.val = val;
+    }
+
+    // 必须重写 equals 方法
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (obj == null || getClass() != obj.getClass()) return false;
+        Vertex vertex = (Vertex) obj;
+        return val == vertex.val;
+    }
+
+    // 必须重写 hashCode 方法
+    @Override
+    public int hashCode() {
+        return Integer.hashCode(val);
+    }
+}
+```
+我们想用Vertex作为key，哈希表必须知道怎么去实现哈希算法从而快速找到把这个key放在哪里，也需要知道怎么去比较两个key是否相等。
+<br>
+**因此务必重写hashCode(哈希算法)和equals方法。**
 ```java
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -138,7 +164,7 @@ class GraphAdjList {
     }
 
     public void removeVertex(Vertex vet) {
-        if (!adjList.contains(vet)) {
+        if (!adjList.containsKey(vet)) {
             throw new IllegalArgumentException();
         }
         adjList.remove(vet);
@@ -161,11 +187,102 @@ class GraphAdjList {
     }
 }
 ```
-| |邻接矩阵|邻接表（链表）|邻接表（哈希表）|
-|:---|:---:|:---:|:---:|
-|**判断是否邻接**|O(1)|O(n)|O(1)|
-|**添加边**|O(1)|O(1)|O(1)|
-|**删除边**|O(1)|O(n)|O(1)|
-|**添加顶点**|O(n)|O(1)|O(1)|
-|**删除顶点**|O(n*n)|O(n+m)|O(n+m)|
-|**内存空间**|O(n*n)|O(n+m)|O(n+m)|
+| |     邻接矩阵     |邻接表（链表）|邻接表（哈希表）|
+|:---|:------------:|:---:|:---:|
+|**判断是否邻接**|     O(1)     |O(n)|O(1)|
+|**添加边**|     O(1)     |O(1)|O(1)|
+|**删除边**|     O(1)     |O(n)|O(1)|
+|**添加顶点**|     O(n)     |O(1)|O(1)|
+|**删除顶点**|    O(n*n)    |O(n+m)|O(n+m)|
+|**内存空间**|    O(n*n)    |O(n+m)|O(n+m)|
+
+请注意，邻接表（链表）对应本文实现，而邻接表（哈希表）专指将所有链表替换为哈希表后的实现。
+
+
+
+# 图的遍历
+## 广度遍历（BFS）
+使用队列
+<br>
+遍历起始顶点加入队列，每次迭代弹出队首病记录访问，之后把顶点所有的邻接节点加入队尾
+
+```java
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.Queue;
+
+List<Vertex> graphBFS(GraphAdjList graph, Vertex startVet) {
+    List<Vertex> res = new ArrayList<>();
+    Set<Vertex> visited = new HashSet<>();
+    visited.add(startVet);
+    Queue<Vertex> que = new LinkedList<>();
+    que.offer(startVet);
+    while (!que.isEmpty())
+    {
+        Vertex vet = que.poll();
+        res.add(vet);
+        //相当于遍历边
+        for(Vertex adjVet : graph.adjList.get(vet))
+        {
+            if(visited.contains(adjVet))
+            {
+                continue;
+            }
+            que.offer(adjVet);
+            visited.add(adjVet);
+        }
+    }
+    return res;
+}
+```
+时间复杂度：O(V+E)
+<br>
+空间复杂度：OO（V）
+## 深度优先（DFS）
+
+```java
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+
+void dfs(GraphAdjList graph, Set<Vertex> visited, List<Vertex> res, Vertex vet) {
+    if (visited.contains(vet)) {
+        return;
+    }
+    res.add(vet);
+    visited.add(vet);
+    //依然是，访问邻接节点相当于再访问边。
+    for (Vertex adjVet : graph.adjList.get(vet)) {
+        dfs(graph, visited, res, adjVet);
+    }
+}
+
+List<Vertex> graphDFS(GraphAdjList graph, Vertex startVet) {
+    List<Vertex> res = new ArrayList<>();
+    Set<Vertex> visited = new HashSet<>();
+    dfs(graph,visited,res,startVet);
+    return res;
+}
+```
+可以优化成调用前检查
+```java
+void dfs(GraphAdjList graph, Set<Vertex> visited, List<Vertex> res, Vertex vet) {
+    res.add(vet);     // 记录访问顶点
+    visited.add(vet); // 标记该顶点已被访问
+    // 遍历该顶点的所有邻接顶点
+    for (Vertex adjVet : graph.adjList.get(vet)) {
+        //基本情况隐藏在这里，如果所有邻接节点都被访问，就会返回
+        if (visited.contains(adjVet))
+            continue; // 跳过已被访问的顶点
+        // 递归访问邻接顶点
+        dfs(graph, visited, res, adjVet);
+    }
+}
+
+```
+显式写出基本情况时，如果某个邻接节点被访问过，依然会递归调用一次dfs，性能会略微低点。
+<br>
+时间复杂度：O(V+E)，所有顶点都会被访问一次，用O（V）时间，所有边被访问两次，O（E）
+空间复杂度：res，visited都是O（V），递归深度最多也是O（V），总体就是O（V）。
+
