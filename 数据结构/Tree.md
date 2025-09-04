@@ -210,7 +210,7 @@ void insert(int num) {
 时间复杂度平衡时也是O（logN).
 ### 删除节点
 需分情况，要删的节点的度是0，1，2
-其中度为二时为了保证满足二叉搜索树。需要用一个节点替换被删除的节点，可以是右子树最小节点或者左子树最大节点。这里我们使用右子树最大节点（也就是中序遍历的下一个节点）
+其中度为二时为了保证满足二叉搜索树。需要用一个节点替换被删除的节点，可以是右子树最小节点或者左子树最大节点。这里我们使用右子树最小节点（也就是中序遍历的下一个节点，左子树->当前节点->右子树）
 ```java
 import javax.swing.tree.TreeNode;
 TreeNode root;
@@ -260,6 +260,7 @@ void remove(int num) {
     else {
         TreeNode temp = cur.right;
         TreeNode tempParent = cur;
+        //查找右子树的最小节点
         while (temp.left != null)
         {
             tempParent = temp;
