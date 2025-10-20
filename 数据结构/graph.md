@@ -1,6 +1,6 @@
 # 图的实现
 ## 邻接矩阵
-
+![img_1.png](img_1.png)
 ```java
 import java.util.ArrayList;
 import java.util.List;
@@ -90,7 +90,8 @@ class GraphAdjMat {
 }
 ```
 ## 邻接表
-实际上我们使用Vertex类表示顶点，这样删除时只需要删除一个不需要删除其他（借助哈希表）
+实际上我们使用Vertex类表示顶点，借助哈希表来实现每个邻接表的“链表”
+![img_2.png](img_2.png)
 ```java
 class Vertex {
     int val;
@@ -204,7 +205,7 @@ class GraphAdjList {
 ## 广度遍历（BFS）
 使用队列
 <br>
-遍历起始顶点加入队列，每次迭代弹出队首病记录访问，之后把顶点所有的邻接节点加入队尾
+遍历起始顶点加入队列，每次迭代弹出队首并记录访问，之后把顶点所有的邻接节点加入队尾
 
 ```java
 import java.util.ArrayList;
@@ -223,7 +224,7 @@ List<Vertex> graphBFS(GraphAdjList graph, Vertex startVet) {
         Vertex vet = que.poll();
         res.add(vet);
         //相当于遍历边
-        for(Vertex adjVet : graph.adjList.get(vet))
+        for(Vertex adjVet : graph.adjList.get(vet))//adjList邻接矩阵
         {
             if(visited.contains(adjVet))
             {
@@ -238,13 +239,14 @@ List<Vertex> graphBFS(GraphAdjList graph, Vertex startVet) {
 ```
 时间复杂度：O(V+E)
 <br>
-空间复杂度：OO（V）
+空间复杂度：O（V）
 ## 深度优先（DFS）
 
 ```java
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+
 
 void dfs(GraphAdjList graph, Set<Vertex> visited, List<Vertex> res, Vertex vet) {
     if (visited.contains(vet)) {
