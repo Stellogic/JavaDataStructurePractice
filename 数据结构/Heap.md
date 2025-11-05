@@ -62,6 +62,7 @@ void siftDown(int i)
     }
 }
 ```
+复杂度log(n)
 **注意很多语言优先队列就是堆**
 ## 建堆操作
 1. 依次入堆法，时间复杂度O(nlogn)（log(1)+……log(k)，整体小于klogk,取后半部分，log(k/2)+……+log(k),后半部分大于k/2log(k/2)，所以可以认为渐进上限就是klog(k))
